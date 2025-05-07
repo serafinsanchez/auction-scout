@@ -11,9 +11,7 @@ const HeroSection = () => {
       <Paragraph className="mb-6 text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl">
         See all your auction data in one place, get instant value estimates for items, and make informed bidding decisions. Designed for resellers who want to maximize profit and minimize guesswork.
       </Paragraph>
-      <Button variant="default" size="lg" className="text-base px-8 py-3">
-        Get Started
-      </Button>
+      
     </section>
   );
 };
