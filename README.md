@@ -1,70 +1,141 @@
-# Getting Started with Create React App
+# Auction Scout
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Purpose & Audience
+This project is designed for employers, clients, and open source contributors who want to evaluate my skills in building robust, scalable, and well-documented web applications. It demonstrates:
+- Backend data aggregation, normalization, and API design
+- Modern React frontend architecture
+- Code quality, testing, and documentation best practices
 
-In the project directory, you can run:
+## Tech Stack
+- **Backend:** Node.js, Express, Cheerio (scraping), Axios
+- **Frontend:** React, Tailwind CSS
+- **Testing:** Jest
+- **Build Tools:** Vite, Webpack, PostCSS
 
-### `npm start`
+## Features
+- Aggregates and normalizes auction/item data from third-party sources
+- Unified backend API for frontend and AI services
+- Resilient scraping with error handling and scheduled refresh
+- AI-powered price estimation endpoint
+- Automated tests for core endpoints
+- Modular, maintainable codebase
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+## Overview
+This project now uses a unified backend service to aggregate, normalize, and serve auction and item data to the frontend. The frontend is fully decoupled from third-party APIs for auctions/items, and all data flows through the backend.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This backend service aggregates and normalizes auction and item data from Dickensheet (https://www.dickensheet.com) and exposes a unified API for use by the frontend and AI valuation services. It includes resilient scraping, scheduled refresh, error handling, and health monitoring.
 
-### `npm run build`
+## Aggregation Flow
+- Scrapes the main auction list from Dickensheet.
+- For each auction, scrapes details and fetches all items (with images) from the Dickensheet live auction API.
+- Normalizes and stores all auctions and items in memory.
+- Refreshes data every 10 minutes (or on demand via API).
+- Logs all progress and errors for observability.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## API Endpoints
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `GET /api/auctions`
+Returns an array of all current auctions.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Example response:**
+```json
+[
+  {
+    "id": "139759",
+    "title": "VEHICLES ON BEHALF OF TOW CO",
+    "date": "May 8 @ 2:00pm M",
+    "end": null,
+    "address": "1280 W 47th Ave, Denver, CO 80211, US (map)",
+    "source": "https://www.dickensheet.com/auctions/detail/bw139759",
+    "itemIds": ["19718080", ...]
+  },
+  ...
+]
+```
 
-### `npm run eject`
+### `GET /api/items`
+Returns an array of all items (optionally filter by `?auctionId=...`). Each item includes all available image URLs.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Example response:**
+```json
+[
+  {
+    "id": "19718081",
+    "auctionId": "139759",
+    "name": "1998 Toyota Corolla, 1NXBR12E9WZ012755",
+    "description": "...",
+    "start_amount": 300,
+    "api_bidding_state": { ... },
+    "images": [
+      {
+        "id": 123918399,
+        "web_large_url": "https://...",
+        ...
+      },
+      ...
+    ]
+  },
+  ...
+]
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### `POST /api/refresh-auctions`
+Manually trigger a data refresh. Returns status and message.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### `GET /api/health`
+Returns a health summary:
+```json
+{
+  "auctions": 4,
+  "items": 72,
+  "lastAggregationTime": "2025-05-06T18:18:09.391Z"
+}
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### `POST /ai-estimation`
+Request an AI-powered price estimation for an item. Pass `itemName`, `itemDescription`, and `imageLinks` (array of image URLs) in the request body.
 
-## Learn More
+**Example request:**
+```json
+{
+  "itemName": "1998 Toyota Corolla, 1NXBR12E9WZ012755",
+  "itemDescription": "...",
+  "imageLinks": ["https://.../web_large_url.jpg", ...]
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Data Freshness & Resilience
+- Data is refreshed every 10 minutes and can be manually refreshed.
+- Errors in scraping or API calls are logged and do not crash the server.
+- Health endpoint provides visibility into data status.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## How to Run
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 1. Start the Backend
+```sh
+node server.js
+```
+- Runs on port 3001 by default.
+- Logs confirm server and data aggregation are running.
 
-### Making a Progressive Web App
+### 2. Start the Frontend
+```sh
+npm start
+```
+- Runs on port 3000 by default.
+- The frontend fetches all auction/item data from the backend.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
