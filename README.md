@@ -1,11 +1,9 @@
 # Auction Scout
 
+## Overview
+This project now uses a unified backend service to aggregate, normalize, and serve auction and item data to the frontend. The frontend is fully decoupled from third-party APIs for auctions/items, and all data flows through the backend.
 
-## Purpose & Audience
-This project is designed for employers, clients, and open source contributors who want to evaluate my skills in building robust, scalable, and well-documented web applications. It demonstrates:
-- Backend data aggregation, normalization, and API design
-- Modern React frontend architecture
-- Code quality, testing, and documentation best practices
+This backend service aggregates and normalizes auction and item data and exposes a unified API for use by the frontend and AI valuation services. It includes resilient scraping, scheduled refresh, error handling, and health monitoring.
 
 ## Tech Stack
 - **Backend:** Node.js, Express, Cheerio (scraping), Axios
@@ -20,13 +18,6 @@ This project is designed for employers, clients, and open source contributors wh
 - AI-powered price estimation endpoint
 - Automated tests for core endpoints
 - Modular, maintainable codebase
-
-
-
-## Overview
-This project now uses a unified backend service to aggregate, normalize, and serve auction and item data to the frontend. The frontend is fully decoupled from third-party APIs for auctions/items, and all data flows through the backend.
-
-This backend service aggregates and normalizes auction and item data from Dickensheet (https://www.dickensheet.com) and exposes a unified API for use by the frontend and AI valuation services. It includes resilient scraping, scheduled refresh, error handling, and health monitoring.
 
 ## Aggregation Flow
 - Scrapes the main auction list from Dickensheet.
